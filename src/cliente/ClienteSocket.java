@@ -32,6 +32,9 @@ public class ClienteSocket extends JFrame implements ActionListener {
     JLabel rotulo;
     PrintStream saida;
     BufferedReader entrada;
+    String enderecoServidor;
+    Integer portaServidor;
+    String meuNome;
 
     public ClienteSocket() {
         super("Chat");
@@ -74,14 +77,18 @@ public class ClienteSocket extends JFrame implements ActionListener {
 
     void executa() {
         try {
-            socket = new Socket("localhost", 5555);
-            //Instancia do atributo saida, obtem os objetos que permitem controlar o fluxo de comunicação
+            /* Conexao ao servidor */
+            enderecoServidor = JOptionPane.showInputDialog("Digite o endereço do servidor");
+            portaServidor = Integer.parseInt(JOptionPane.showInputDialog("Digite a porta do servidor "));
+
+            socket = new Socket(enderecoServidor, portaServidor);
             saida = new PrintStream(socket.getOutputStream());
-            String meuNome = JOptionPane.showInputDialog("Digite seu nome ");
+
+            /* Define username e envia ao servidor */
+            meuNome = JOptionPane.showInputDialog("Digite seu nome ");
             rotulo.setText("Bem Vindo " + meuNome);
-            //envia o nome digitado para o servidor
             saida.println(meuNome.toUpperCase());
-            //instancia a thread para ip e porta conectados e depois inicia ela
+
             Recebedor r = new Recebedor(this, socket.getInputStream());
             new Thread(r).start();
         } catch (IOException e) {
@@ -103,22 +110,20 @@ public class ClienteSocket extends JFrame implements ActionListener {
     // execução da thread
     public void run() {
         try {
-            //recebe mensagens de outro cliente através do servidor
-            BufferedReader entrada = new BufferedReader(new InputStreamReader(this.conexao.getInputStream()));
-            //cria variavel de mensagem
-            String msg;
+            /* Pool de mensagens recebidas */
+            BufferedReader msgRecebida = new BufferedReader(new InputStreamReader(this.conexao.getInputStream()));
+            String tmpMensagem;
+
             while (true) {
-                // pega o que o servidor enviou
-                msg = entrada.readLine();
-                //se a mensagem contiver dados, passa pelo if, caso contrario cai no break e encerra a conexao
-                if (msg == null) {
+                tmpMensagem = msgRecebida.readLine();
+
+                if (tmpMensagem.trim().length() == 0) {
                     System.out.println("Conexão encerrada!");
-                    System.exit(0);
+                    //System.exit(0);
                 }
-                areaTexto.append(msg + "\n");
+                areaTexto.append(tmpMensagem + "\n");
             }
         } catch (IOException e) {
-            // caso ocorra alguma exceção de E/S, mostra qual foi.
             System.out.println("Ocorreu uma Falha... .. ." + " IOException: " + e);
         }
     }
@@ -127,11 +132,10 @@ public class ClienteSocket extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         Object fonte = event.getSource();
 
-        if (fonte == btn) //Envia informacao pelo socket
-        {
+        if (fonte == btn) {
             String text = msg.getText();
             saida.println(text);
-            msg.setText(new String("")); //recebe do servidor
+            msg.setText(new String(""));
         }
     }
 }

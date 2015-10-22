@@ -73,8 +73,9 @@ public class ServidorSocket extends Thread {
                 return;
             }
 
+            /* Já tem usuário, mostra alerta de desconecta */
             if (adiciona(this.nomeCliente)) {
-                msgEnviada.println("Já existe um usuário conectado com esse nome. Informe outro, e conecte novamente.");
+                msgEnviada.println("Já existe um usuário conectado com esse nome.\nInforme outro, e conecte novamente.");
                 this.conexao.close();
                 return;
             } else {
@@ -82,7 +83,7 @@ public class ServidorSocket extends Thread {
                 msgEnviada.println("Conectados: " + LISTA_DE_NOMES.toString());
             }
 
-            /* Adiciona o nome do Usuario à string que será enviada */
+            /* Adiciona o nome do Usuario à lista */
             MAP_CLIENTES.put(this.nomeCliente, msgEnviada);
 
             String[] msg = msgRecebida.readLine().split(":");
@@ -98,7 +99,6 @@ public class ServidorSocket extends Thread {
             enviar(msgEnviada, " saiu", out);
 
             remove(this.nomeCliente);
-
             MAP_CLIENTES.remove(this.nomeCliente);
             this.conexao.close();
 

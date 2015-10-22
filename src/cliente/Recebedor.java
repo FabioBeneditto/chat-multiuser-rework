@@ -18,22 +18,20 @@ class Recebedor implements Runnable {
     @Override
     public void run() {
         try {
-            //recebe mensagens de outro cliente através do servidor
+            /* Recebe mensagens do Servidor */
             clienteSocket.entrada = new BufferedReader(new InputStreamReader(clienteSocket.socket.getInputStream()));
-            //cria variavel de mensagem
-            String msg;
+            String mensagemRecebida;
+
             while (true) {
-                // pega o que o servidor enviou
-                msg = clienteSocket.entrada.readLine();
-                //se a mensagem contiver dados, passa pelo if, caso contrario cai no break e encerra a conexao
-                if (msg == null) {
+                mensagemRecebida = clienteSocket.entrada.readLine();
+
+                if (mensagemRecebida == null) {
                     System.out.println("Conexão encerrada!");
                     System.exit(0);
                 }
-                clienteSocket.areaTexto.append(msg + "\n");
+                clienteSocket.areaTexto.append(mensagemRecebida + "\n");
             }
         } catch (IOException e) {
-            // caso ocorra alguma exceção de E/S, mostra qual foi.
             System.out.println("Ocorreu uma Falha... .. ." + " IOException: " + e);
         }
     }
